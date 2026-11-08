@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vltimate CV — Interactive Resume Engine</title>
+
+  <!-- Tailwind CSS for responsive layout & toolbar styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Typography fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --primary-light: #f0f9ff;
+      --text-dark: #1e293b;
+      --text-muted: #475569;
+      --border-light: #e2e8f0;
+      --accent-line: #cbd5e1;
+    }
+
+    .theme-blue { --primary-color: #0284c7; --primary-light: #f0f9ff; }
+    .theme-purple { --primary-color: #7c3aed; --primary-light: #faf5ff; }
+    .theme-emerald { --primary-color: #059669; --primary-light: #ecfdf5; }
+    .theme-charcoal { --primary-color: #334155; --primary-light: #f8fafc; }
+
+    body {
+      font-family: 'Source Sans 3', 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text-dark);
+      background-color: #f1f5f9;
+      margin: 0;
+      transition: background-color 0.25s ease;
+    }
+
+    body.layout-ats {
+      font-family: Arial, Helvetica, 'Liberation Sans', 'DejaVu Sans', system-ui, sans-serif;
+    }
+
+    /* Offline / headless baseline utilities so layout never breaks if CDN is slow */
+    *, *::before, *::after { box-sizing: border-box; }
+    .hidden { display: none !important; }
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .justify-between { justify-content: space-between; }
+    .gap-1\.5 { gap: 0.375rem; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 0.75rem; }
+    .list-disc { list-style-type: disc; }
+    .pl-4 { padding-left: 1rem; }
+    .pb-4 { padding-bottom: 1rem; }
+    .pt-3 { padding-top: 0.75rem; }
+    .p-5 { padding: 1.25rem; }
+    .mb-5 { margin-bottom: 1.25rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-1\.5 { margin-top: 0.375rem; }
+    .mt-6 { margin-top: 1.5rem; }
+    .ml-1\.5 { margin-left: 0.375rem; }
+    .space-y-1 > * + * { margin-top: 0.25rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .space-y-3 > * + * { margin-top: 0.75rem; }
+    .space-y-3\.5 > * + * { margin-top: 0.875rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .border-b-2 { border-bottom: 2px solid var(--border-light); }
+    .border-t { border-top: 1px solid var(--border-light); }
+    .font-bold { font-weight: 700; }
+    .font-extrabold { font-weight: 800; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+    .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+    .text-base { font-size: 1rem; line-height: 1.5rem; }
+    .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; }
+    .text-right { text-align: right; }
+    .text-justify { text-align: justify; }
+    .leading-relaxed { line-height: 1.625; }
+    .leading-tight { line-height: 1.25; }
+    @media (min-width: 768px) {
+      .md\:flex-row { flex-direction: row; }
+      .md\:text-right { text-align: right; }
+      .md\:mt-0 { margin-top: 0; }
+      .md\:min-w-\[260px\] { min-width: 260px; }
+    }
+
+    .cv-page {
+      background: #ffffff;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 2rem auto;
+      padding: 16mm 16mm;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 8px 16px -6px rgba(0, 0, 0, 0.05);
+      box-sizing: border-box;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .cv-fluid-view {
+      width: 100% !important;
+      max-width: 960px !important;
+      min-height: auto !important;
+      margin: 1.5rem auto !important;
+      padding: 2rem !important;
+      border-radius: 1rem;
+    }
+
+    /* Layout Mode A: ModernCV 2-column split margin */
+    body.layout-moderncv .cv-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      column-gap: 28px;
+    }
+
+    body.layout-moderncv .cv-section-title {
+      font-weight: 700;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.95rem;
+      border-right: 4px solid var(--primary-color);
+      padding-right: 14px;
+      text-align: right;
+      height: fit-content;
+    }
+
+    body.layout-moderncv .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.35rem 1.5rem;
+    }
+
+    /* Layout Mode B: Strict Single-Column Linear ATS Flow */
+    body.layout-ats .cv-grid {
+      display: block;
+    }
+
+    body.layout-ats .cv-section-title {
+      font-weight: 700;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.95rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+      text-align: left;
+    }
+
+    body.layout-ats .skills-grid {
+      display: block;
+    }
+    body.layout-ats .skills-grid > div {
+      margin-bottom: 4px;
+    }
+
+    .cv-divider {
+      height: 1px;
+      background-color: var(--accent-line);
+      margin: 0.95rem 0;
+    }
+
+    .btn-active {
+      background-color: var(--primary-color) !important;
+      color: #ffffff !important;
+      border-color: var(--primary-color) !important;
+    }
+
+    /* Modal dialog scroll containment */
+    dialog:modal {
+      overscroll-behavior: contain;
+      border: 1px solid #cbd5e1;
+      border-radius: 0.875rem;
+      padding: 0;
+      max-width: 680px;
+      width: calc(100% - 2rem);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    dialog::backdrop {
+      overflow: hidden;
+      overscroll-behavior: contain;
+      background-color: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(2px);
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 12mm 14mm 12mm 14mm;
+      }
+      body {
+        font-family: Arial, Helvetica, 'Liberation Sans', 'DejaVu Sans', sans-serif !important;
+        background-color: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        font-size: 11px !important;
+        line-height: 1.32 !important;
+      }
+      .no-print { display: none !important; }
+      .cv-page {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-height: auto !important;
+        background: transparent !important;
+      }
+      body.layout-moderncv .cv-grid {
+        grid-template-columns: 128px 1fr !important;
+        column-gap: 18px !important;
+      }
+      h1, h2, h3, h4, .cv-section-title, .page-break-avoid-header {
+        break-after: avoid;
+        page-break-after: avoid;
+      }
+      p, li { orphans: 3; widows: 3; }
+      li, .page-break-avoid {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="theme-blue layout-ats">
+
+  <!-- Interactive Toolbar (Excluded from Print & Headless PDFs) -->
+  <header class="no-print bg-slate-900 text-white shadow-lg sticky top-0 z-50 px-4 py-3 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-col xl:flex-row items-center justify-between gap-3">
+
+      <div class="flex items-center gap-3">
+        <div class="bg-sky-600 font-extrabold p-2 rounded-xl text-sm flex items-center justify-center h-10 w-10 text-white">
+          CV
+        </div>
+        <div>
+          <span class="block text-sm font-bold tracking-tight">Vltimate CV</span>
+          <p class="text-xs text-slate-400">ATS Resume Engine &amp; Customization Toolbar</p>
+        </div>
+      </div>
+
+      <nav aria-label="Resume customization" class="flex flex-wrap items-center justify-center gap-2">
+        <!-- Language Tabs -->
+        <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700" role="group" aria-label="Language selection">
+          <button type="button" data-action="lang" data-value="en" id="lang-en-btn" class="px-2.5 py-1 text-xs rounded-lg font-bold btn-active">EN</button>
+          <button type="button" data-action="lang" data-value="pl" id="lang-pl-btn" class="px-2.5 py-1 text-xs rounded-lg font-bold text-slate-400 hover:text-white">PL</button>
+          <button type="button" data-action="lang" data-value="both" id="lang-both-btn" class="px-2.5 py-1 text-xs rounded-lg font-bold text-slate-400 hover:text-white">Both</button>
+        </div>
+
+        <!-- Layout Mode (Strict ATS vs ModernCV) -->
+        <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700" role="group" aria-label="Layout selection">
+          <button type="button" data-action="layout" data-value="ats" id="layout-ats-btn" class="px-2.5 py-1 text-xs rounded-lg font-bold btn-active">Strict ATS</button>
+          <button type="button" data-action="layout" data-value="moderncv" id="layout-moderncv-btn" class="px-2.5 py-1 text-xs rounded-lg font-bold text-slate-400 hover:text-white">ModernCV</button>
+        </div>
+
+        <!-- Auto-Translate -->
+        <div class="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700">
+          <label for="custom-lang-select" class="text-xs text-slate-400">Translate:</label>
+          <select id="custom-lang-select" class="bg-slate-900 text-xs text-white border-none rounded py-0.5 px-1.5 cursor-pointer">
+            <option value="none">None</option>
+            <option value="de">German (DE)</option>
+            <option value="es">Spanish (ES)</option>
+            <option value="fr">French (FR)</option>
+            <option value="custom_writein">Custom...</option>
+          </select>
+        </div>
+
+        <!-- Theme Swatches -->
+        <div class="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700" role="group" aria-label="Color theme">
+          <span class="text-xs text-slate-400">Theme:</span>
+          <button type="button" data-action="theme" data-value="theme-blue" aria-label="Blue Theme" class="w-4 h-4 rounded-full bg-sky-500 border border-white"></button>
+          <button type="button" data-action="theme" data-value="theme-purple" aria-label="Purple Theme" class="w-4 h-4 rounded-full bg-violet-600 border border-white"></button>
+          <button type="button" data-action="theme" data-value="theme-emerald" aria-label="Emerald Theme" class="w-4 h-4 rounded-full bg-emerald-600 border border-white"></button>
+          <button type="button" data-action="theme" data-value="theme-charcoal" aria-label="Charcoal Theme" class="w-4 h-4 rounded-full bg-slate-600 border border-white"></button>
+        </div>
+
+        <!-- View Mode -->
+        <div class="flex bg-slate-800 p-1 rounded-xl border border-slate-700" role="group" aria-label="Page width mode">
+          <button type="button" data-action="view" data-value="a4" id="view-a4-btn" class="px-2.5 py-1 text-xs rounded-lg font-medium btn-active">A4</button>
+          <button type="button" data-action="view" data-value="fluid" id="view-fluid-btn" class="px-2.5 py-1 text-xs rounded-lg font-medium text-slate-400 hover:text-white">Fluid</button>
+        </div>
+
+        <!-- RODO/GDPR -->
+        <div class="flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-xl border border-slate-700">
+          <label for="rodo-config" class="text-xs text-slate-400">GDPR:</label>
+          <select id="rodo-config" class="bg-slate-900 text-xs text-white border-none rounded py-0.5 px-1.5 cursor-pointer">
+            <option value="universal">Include</option>
+            <option value="none">Omit</option>
+          </select>
+        </div>
+
+        <!-- ATS Scorecard Modal Trigger -->
+        <button type="button" id="ats-open-btn" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold px-3 py-1.5 rounded-xl text-xs border border-emerald-500/40">
+          ATS Check
+        </button>
+
+        <!-- Save Config -->
+        <button type="button" data-action="save-config" class="bg-slate-800 hover:bg-slate-700 text-sky-400 font-bold px-3 py-1.5 rounded-xl text-xs border border-sky-500/40">
+          Save Config
+        </button>
+
+        <!-- Print / PDF -->
+        <button type="button" id="pdf-export-btn" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-3.5 py-1.5 rounded-xl text-xs">
+          Print / Save PDF
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Native ATS Pre-Flight Scorecard Dialog -->
+  <dialog id="ats-scorecard-dialog" closedby="any" aria-labelledby="ats-dialog-title">
+    <div class="bg-white text-slate-900 p-5">
+      <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+        <h2 id="ats-dialog-title" class="text-base font-bold">ATS Pre-Flight Scorecard</h2>
+        <form method="dialog">
+          <button type="submit" class="text-slate-500 hover:text-slate-900 text-sm font-bold px-2 py-1 rounded">Close</button>
+        </form>
+      </div>
+      <div id="ats-audit-results" class="space-y-2 text-xs mb-4"></div>
+      <label for="ats-jd-input" class="block text-xs font-semibold text-slate-700 mb-1">Optional: Paste Job Description to Score Keyword Match</label>
+      <textarea id="ats-jd-input" rows="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs mb-2" placeholder="Paste target JD text here..."></textarea>
+      <div class="flex items-center justify-between">
+        <button type="button" id="ats-run-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs">Run Keyword Match</button>
+        <span id="ats-match-score" aria-live="polite" class="text-xs font-bold text-slate-700"></span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Auto-Translation Banner -->
+  <div id="translation-warning-banner" class="no-print max-w-5xl mx-auto mt-3 px-4 hidden">
+    <div class="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-xl shadow-sm flex items-center justify-between">
+      <p class="text-xs font-semibold text-amber-900">Custom target language queued. Save config and re-run CLI or Vltimate Studio to render translated text.</p>
+      <button type="button" data-action="save-config" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-3 py-1 rounded-lg text-xs">Save Config</button>
+    </div>
+  </div>
+
+  <main id="cv-workspace" tabindex="-1">
+  <!-- ================= ENGLISH CV PAGE ================= -->
+  <article id="cv-english-page" lang="en" class="cv-page">
+    <div class="flex flex-col md:flex-row justify-between items-start border-b-2 pb-4 mb-5" style="border-color: var(--primary-color);">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight" style="color: var(--primary-color);">[Candidate Full Name]</h1>
+        <p class="text-lg font-medium mt-1 text-slate-700">[Target Engineering Role]</p>
+      </div>
+      <div class="text-left md:text-right text-[11.5px] space-y-1 text-slate-600 mt-3 md:mt-0 font-medium md:min-w-[260px]">
+        <div>[City, Country]</div>
+        <div>[Phone Number]</div>
+        <div><a href="mailto:email@example.com" class="hover:underline">[Email Address]</a></div>
+        <div><a href="#" class="hover:underline">[GitHub / Portfolio URL]</a></div>
+        <div><a href="#" class="hover:underline">[LinkedIn URL]</a></div>
+      </div>
+    </div>
+
+    <div class="space-y-3.5">
+      <section class="cv-grid">
+        <h2 class="cv-section-title">Summary</h2>
+        <div class="text-xs text-slate-700 leading-relaxed text-justify">
+          [Professional summary detailing verified core stack, architectural ownership, and measurable engineering outcomes.]
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid page-break-avoid">
+        <h2 class="cv-section-title">Skills</h2>
+        <div class="text-xs skills-grid">
+          <div><span class="font-bold text-slate-800">Languages:</span> <span class="text-slate-600">[Languages List]</span></div>
+          <div><span class="font-bold text-slate-800">Frameworks &amp; Tooling:</span> <span class="text-slate-600">[Frameworks List]</span></div>
+          <div><span class="font-bold text-slate-800">Systems &amp; Cloud:</span> <span class="text-slate-600">[Systems &amp; Cloud List]</span></div>
+          <div><span class="font-bold text-slate-800">Databases &amp; APIs:</span> <span class="text-slate-600">[Databases &amp; APIs]</span></div>
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid">
+        <h2 class="cv-section-title">Experience</h2>
+        <div class="space-y-4">
+          <div class="page-break-avoid">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-sm text-slate-800">[Job Title]</span>
+                <span class="text-slate-500 font-medium text-xs ml-1.5">| [Company Name]</span>
+              </div>
+              <div class="text-right text-xs">
+                <span class="font-semibold text-slate-700">[Date Range]</span><br>
+                <span class="text-slate-400 italic">[Location]</span>
+              </div>
+            </div>
+            <ul class="list-disc pl-4 mt-1.5 text-xs text-slate-600 space-y-1 text-justify">
+              <li>[STAR-K bullet detailing technical action and verified outcome]</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid page-break-avoid">
+        <h2 class="cv-section-title">Education</h2>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-sm text-slate-800">[Degree / Field of Study]</span>
+                <span class="text-slate-500 font-medium text-xs ml-1.5">| [Institution Name]</span>
+              </div>
+              <div class="text-right text-xs">
+                <span class="font-semibold text-slate-700">[Graduation Year]</span>
+              </div>
+            </div>
+            <p class="text-[11.5px] text-slate-600 mt-1">[Certifications or specialization details]</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="rodo-outer-box page-break-avoid mt-6 pt-3 border-t border-slate-200 text-[10px] text-slate-400 text-justify leading-tight">
+      <span class="rodo-content-node"></span>
+    </div>
+  </article>
+
+  <!-- ================= POLISH CV PAGE ================= -->
+  <article id="cv-polish-page" lang="pl" class="cv-page hidden">
+    <div class="flex flex-col md:flex-row justify-between items-start border-b-2 pb-4 mb-5" style="border-color: var(--primary-color);">
+      <div>
+        <h1 class="text-3xl font-extrabold tracking-tight" style="color: var(--primary-color);">[Imię i Nazwisko]</h1>
+        <p class="text-lg font-medium mt-1 text-slate-700">[Tytuł Zawodowy]</p>
+      </div>
+      <div class="text-left md:text-right text-[11.5px] space-y-1 text-slate-600 mt-3 md:mt-0 font-medium md:min-w-[260px]">
+        <div>[Miasto, Kraj]</div>
+        <div>[Numer Telefonu]</div>
+        <div><a href="mailto:email@example.com" class="hover:underline">[Adres Email]</a></div>
+        <div><a href="#" class="hover:underline">[GitHub / Portfolio]</a></div>
+        <div><a href="#" class="hover:underline">[Profil LinkedIn]</a></div>
+      </div>
+    </div>
+
+    <div class="space-y-3.5">
+      <section class="cv-grid">
+        <h2 class="cv-section-title">O mnie</h2>
+        <div class="text-xs text-slate-700 leading-relaxed text-justify">
+          [Podsumowanie zawodowe opisujące zweryfikowane doświadczenie, stos technologiczny i kluczowe rezultaty.]
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid page-break-avoid">
+        <h2 class="cv-section-title">Umiejętności</h2>
+        <div class="text-xs skills-grid">
+          <div><strong class="text-slate-800">Języki Programowania:</strong> <span class="text-slate-600">[Lista języków]</span></div>
+          <div><strong class="text-slate-800">Frameworki i Narzędzia:</strong> <span class="text-slate-600">[Lista narzędzi]</span></div>
+          <div><strong class="text-slate-800">Systemy i Chmura:</strong> <span class="text-slate-600">[Systemy]</span></div>
+          <div><strong class="text-slate-800">Bazy Danych i API:</strong> <span class="text-slate-600">[Bazy danych]</span></div>
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid">
+        <h2 class="cv-section-title">Doświadczenie</h2>
+        <div class="space-y-4">
+          <div class="page-break-avoid">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-bold text-sm text-slate-800">[Stanowisko]</span>
+                <span class="text-slate-500 font-medium text-xs ml-1.5">| [Nazwa Firmy]</span>
+              </div>
+              <div class="text-right text-xs">
+                <span class="font-semibold text-slate-700">[Okres]</span>
+              </div>
+            </div>
+            <ul class="list-disc pl-4 mt-1.5 text-xs text-slate-600 space-y-1 text-justify">
+              <li>[Opis zadań i wymiernych osiągnięć]</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="cv-divider"></div>
+
+      <section class="cv-grid page-break-avoid">
+        <h2 class="cv-section-title">Wykształcenie</h2>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between items-start">
+              <div><span class="font-bold text-sm text-slate-800">[Kierunek / Uczelnia]</span></div>
+              <div class="text-right text-xs"><span class="font-semibold text-slate-700">[Okres]</span></div>
+            </div>
+            <p class="text-xs text-slate-600 mt-1">[Kwalifikacje i certyfikaty]</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="rodo-outer-box page-break-avoid mt-6 pt-3 border-t border-slate-200 text-[10px] text-slate-400 text-justify leading-tight">
+      <span class="rodo-content-node"></span>
+    </div>
+  </article>
+  </main>
+
+  <script>
+    const RODO_DATABASE = {
+      en: {
+        universal: "I hereby give consent for my personal data to be processed for the purpose of conducting recruitment procedures (Regulation (EU) 2016/679 - GDPR).",
+        none: ""
+      },
+      pl: {
+        universal: "Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji zgodnie z Rozporządzeniem Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. (RODO).",
+        none: ""
+      }
+    };
+
+    let currentLanguage = 'en';
+    let currentTheme = 'theme-blue';
+    let currentLayoutMode = 'ats';
+    let currentViewMode = 'a4';
+    let targetTranslationLang = 'none';
+
+    function syncBodyClasses() {
+      document.body.className = `${currentTheme} layout-${currentLayoutMode}`;
+    }
+
+    function applyTheme(className) {
+      currentTheme = className;
+      syncBodyClasses();
+    }
+
+    function setLayoutMode(mode) {
+      currentLayoutMode = mode === 'moderncv' ? 'moderncv' : 'ats';
+      syncBodyClasses();
+      const atsBtn = document.getElementById('layout-ats-btn');
+      const modBtn = document.getElementById('layout-moderncv-btn');
+      if (atsBtn && modBtn) {
+        atsBtn.classList.toggle('btn-active', currentLayoutMode === 'ats');
+        modBtn.classList.toggle('btn-active', currentLayoutMode === 'moderncv');
+      }
+    }
+
+    function toggleLang(lang) {
+      currentLanguage = lang;
+      const enPage = document.getElementById('cv-english-page');
+      const plPage = document.getElementById('cv-polish-page');
+      const enBtn = document.getElementById('lang-en-btn');
+      const plBtn = document.getElementById('lang-pl-btn');
+      const bothBtn = document.getElementById('lang-both-btn');
+
+      enPage.classList.toggle('hidden', lang === 'pl');
+      plPage.classList.toggle('hidden', lang === 'en');
+      enBtn.classList.toggle('btn-active', lang === 'en');
+      plBtn.classList.toggle('btn-active', lang === 'pl');
+      bothBtn.classList.toggle('btn-active', lang === 'both');
+    }
+
+    function toggleViewMode(mode) {
+      currentViewMode = mode === 'fluid' ? 'fluid' : 'a4';
+      document.querySelectorAll('.cv-page').forEach(p => p.classList.toggle('cv-fluid-view', currentViewMode === 'fluid'));
+      document.getElementById('view-a4-btn').classList.toggle('btn-active', currentViewMode === 'a4');
+      document.getElementById('view-fluid-btn').classList.toggle('btn-active', currentViewMode === 'fluid');
+    }
+
+    function handleCustomLangChange() {
+      const select = document.getElementById('custom-lang-select');
+      const pdfBtn = document.getElementById('pdf-export-btn');
+      const banner = document.getElementById('translation-warning-banner');
+      let val = select.value;
+      if (val === 'custom_writein') {
+        val = prompt("Enter target language code (e.g. de, es, fr, ja):") || 'none';
+        if (val === 'none') select.value = 'none';
+      }
+      targetTranslationLang = val;
+      const pending = val !== 'none';
+      banner.classList.toggle('hidden', !pending);
+      pdfBtn.disabled = pending;
+      pdfBtn.classList.toggle('opacity-50', pending);
+    }
+
+    function refreshRodoClause() {
+      const sel = document.getElementById('rodo-config') ? document.getElementById('rodo-config').value : 'universal';
+      const enNode = document.querySelector('#cv-english-page .rodo-content-node');
+      const plNode = document.querySelector('#cv-polish-page .rodo-content-node');
+      if (enNode) enNode.textContent = RODO_DATABASE.en[sel] ?? RODO_DATABASE.en.universal;
+      if (plNode) plNode.textContent = RODO_DATABASE.pl[sel] ?? RODO_DATABASE.pl.universal;
+      document.querySelectorAll('.rodo-outer-box').forEach(b => b.classList.toggle('hidden', sel === 'none'));
+    }
+
+    function openAtsScorecard() {
+      const dialog = document.getElementById('ats-scorecard-dialog');
+      runAtsAudit();
+      dialog.showModal();
+    }
+
+    function runAtsAudit() {
+      const activePage = currentLanguage === 'pl'
+        ? document.getElementById('cv-polish-page')
+        : document.getElementById('cv-english-page');
+      const text = (activePage ? activePage.innerText : '').toLowerCase();
+      const headings = Array.from(activePage ? activePage.querySelectorAll('.cv-section-title') : []).map(el => el.textContent.trim().toLowerCase());
+      const required = currentLanguage === 'pl' ? ['o mnie', 'umiejętności', 'doświadczenie', 'wykształcenie'] : ['summary', 'skills', 'experience', 'education'];
+      const hasAllHeadings = required.every(h => headings.some(found => found.includes(h)));
+      const hasPlaceholders = /\[[a-z\s/]+\]/i.test(activePage ? activePage.innerText : '');
+
+      const resultsEl = document.getElementById('ats-audit-results');
+      resultsEl.innerHTML = `
+        <div class="p-2 rounded bg-slate-100"><strong>Layout Flow:</strong> ${currentLayoutMode === 'ats' ? 'Pass (Strict Single-Column Linear DOM)' : 'Warning (2-Column Grid — switch to Strict ATS for legacy Taleo/Workday parsers)'}</div>
+        <div class="p-2 rounded bg-slate-100"><strong>Standard Headings:</strong> ${hasAllHeadings ? 'Pass (All 4 core headings found)' : 'Missing core ATS headings'}</div>
+        <div class="p-2 rounded bg-slate-100"><strong>Template Placeholders:</strong> ${hasPlaceholders ? 'Detected unreplaced [placeholders]' : 'Clean (Zero placeholders)'}</div>
+      `;
+
+      const jd = (document.getElementById('ats-jd-input').value || '').toLowerCase();
+      const scoreEl = document.getElementById('ats-match-score');
+      if (jd.trim().length > 15) {
+        const tokens = Array.from(new Set(jd.match(/\b[a-z0-9+#.-]{3,}\b/g) || []));
+        const hits = tokens.filter(tok => text.includes(tok));
+        const pct = tokens.length ? Math.round((hits.length / tokens.length) * 100) : 0;
+        scoreEl.textContent = `Keyword Match: ${pct}% (${hits.length}/${tokens.length})`;
+      } else {
+        scoreEl.textContent = '';
+      }
+    }
+
+    function exportCustomizationConfig() {
+      const config = {
+        theme: currentTheme,
+        language: currentLanguage,
+        layout: currentLayoutMode,
+        viewMode: currentViewMode,
+        targetTranslationLang,
+        rodo: document.getElementById('rodo-config') ? document.getElementById('rodo-config').value : 'universal',
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'pdf_customization.json';
+      a.click();
+    }
+
+    // Light-dismiss fallback for browsers lacking native closedby="any"
+    (function setupDialogFallback() {
+      const dialog = document.getElementById('ats-scorecard-dialog');
+      if (dialog && !('closedBy' in HTMLDialogElement.prototype)) {
+        let pressedOutside = false;
+        const outside = (e) => {
+          const r = dialog.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        dialog.addEventListener('pointerdown', (e) => { pressedOutside = outside(e); });
+        dialog.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e)) dialog.close(); });
+      }
+    })();
+
+    function bindUiListeners() {
+      document.querySelectorAll('[data-action="lang"]').forEach((btn) => {
+        btn.addEventListener('click', () => toggleLang(btn.dataset.value));
+      });
+      document.querySelectorAll('[data-action="layout"]').forEach((btn) => {
+        btn.addEventListener('click', () => setLayoutMode(btn.dataset.value));
+      });
+      document.querySelectorAll('[data-action="theme"]').forEach((btn) => {
+        btn.addEventListener('click', () => applyTheme(btn.dataset.value));
+      });
+      document.querySelectorAll('[data-action="view"]').forEach((btn) => {
+        btn.addEventListener('click', () => toggleViewMode(btn.dataset.value));
+      });
+      document.querySelectorAll('[data-action="save-config"]').forEach((btn) => {
+        btn.addEventListener('click', exportCustomizationConfig);
+      });
+      document.getElementById('custom-lang-select')?.addEventListener('change', handleCustomLangChange);
+      document.getElementById('rodo-config')?.addEventListener('change', refreshRodoClause);
+      document.getElementById('ats-open-btn')?.addEventListener('click', openAtsScorecard);
+      document.getElementById('ats-run-btn')?.addEventListener('click', runAtsAudit);
+      document.getElementById('pdf-export-btn')?.addEventListener('click', () => window.print());
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      bindUiListeners();
+      refreshRodoClause();
+      const params = new URLSearchParams(window.location.search);
+      const printLang = params.get('printLang');
+      const layoutParam = params.get('layout');
+      if (printLang === 'en' || printLang === 'pl' || printLang === 'both') toggleLang(printLang);
+      if (layoutParam === 'ats' || layoutParam === 'moderncv') setLayoutMode(layoutParam);
+    });
+  </script>
+</body>
+</html>

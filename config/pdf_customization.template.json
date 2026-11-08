@@ -1,0 +1,10 @@
+{
+  "theme": "theme-blue",
+  "language": "en",
+  "layout": "ats",
+  "viewMode": "a4",
+  "rodo": "universal",
+  "paperSize": "A4",
+  "margin": "none",
+  "backgroundGraphics": true
+}

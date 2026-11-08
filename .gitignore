@@ -1,0 +1,63 @@
+# Local Agent, Memory & Scratch Directories
+.agents/
+.codegraph/
+.projectmem/
+scratch/
+
+# Persistent Local Unencrypted Preview (Never Uploaded)
+local_preview/
+
+# Personal Data Subdirectories & Generated Assets
+input/
+output/
+archives/
+raw_technical_profile.md
+cv.html
+cv_en.html
+cv_pl.html
+cv_en.pdf
+cv_pl.pdf
+harvest_diff.log
+.vault_tmp/
+
+# Actual Config & Constraint Files (contain secrets/PII — templates are tracked)
+config/vltimate_config.env
+config/pdf_customization.json
+config/user_constraints.md
+config/conflict_audit.json
+config/checkpoint.json
+config/vault_key.txt
+config/cloud_token.json
+
+# Whitelist: config templates ARE tracked
+!config/config.template.env
+!config/pdf_customization.template.json
+!config/user_constraints.template.md
+
+# Legacy config locations
+.vltimate_config*
+.pdf_customization.json
+.conflict_audit.json
+.checkpoint.json
+.credentials
+
+# Encrypted Archives, TOON Exports, Logs & Temp Files
+personal_data*.tar.gz*
+snapshot_*.tar.gz
+*.toon
+*.tmp
+*.log
+logs/
+.DS_Store
+*.swp
+__pycache__/
+.pytest_cache/
+.venv/
+*.pkg.tar.zst
+src/
+pkg/
+
+.projectmem/events.jsonl
+.projectmem/watch.pid
+.projectmem/watch.log
+.projectmem/structure.json

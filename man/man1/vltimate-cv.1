@@ -1,0 +1,78 @@
+.\" Manpage for Vltimate CV
+.TH VLTIMATE-CV 1 "November 2026" "v4.0.0" "Vltimate CV Manual"
+.SH NAME
+vltimate-cv \- Proof-of-Work Technical Harvester, Strict ATS Resume Engine & Zero-Trust Exporter
+.SH SYNOPSIS
+.B vltimate-cv
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B Vltimate CV
+scans local git repositories, shell histories, developer tooling, and public developer registries to build an evidence-backed knowledge base (\fBoutput/raw_technical_profile.md\fR), render strict single-column ATS or ModernCV bilingual HTML/PDF resumes (\fBoutput/cv.html\fR), and export secret-redacted JSON/TOON profiles for optional Vltimate Studio cloud tailoring.
+
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Display usage and options summary.
+.TP
+.BR \-v ", " \-\-verbose
+Print ISO timestamps and detailed trace output.
+.TP
+.BR \-l ", " \-\-log
+View the latest execution log file in terminal.
+.TP
+.BR \-k ", " \-\-db ", " \-\-knowledge
+View the technical knowledge database in terminal.
+.TP
+.BR \-a ", " \-\-add\-source " \fI<TARGET>\fR"
+Add a custom scrapable directory path, URL, or note.
+.TP
+.BR \-\-provider " \fI<agy|gemini|openai|anthropic|ollama>\fR"
+Select BYOK or local LLM backend (default: \fBagy\fR).
+.TP
+.BR \-\-model " \fI<MODEL>\fR"
+Override default model for the selected provider.
+.TP
+.BR \-\-layout " \fI<ats|moderncv>\fR"
+Select strict single-column linear ATS layout (\fBats\fR, default) or two-column split margin (\fBmoderncv\fR).
+.TP
+.BR \-\-export\-profile
+Redact secrets/paths and export structured JSON and TOON files.
+.TP
+.BR \-\-push " \fI<STUDIO_URL>\fR"
+Export sanitized profile and sync it to Vltimate Studio.
+.TP
+.BR \-\-license\-key " \fI<KEY>\fR"
+Validate and store a Lemon Squeezy Pro license key locally.
+.TP
+.BR \-\-simple\-glyphs ", " \-\-rich\-glyphs
+Force single-width fallback glyphs or color emojis.
+.TP
+.BR \-\-view
+Open the local preview HTML resume in a detected browser.
+.TP
+.BR \-t ", " \-\-tailor " \fI<FILE|URL>\fR"
+Tailor summary, keywords, and STAR-K bullets to a job description.
+.TP
+.BR \-p ", " \-\-pdf
+Force headless PDF generation (\fBcv_en.pdf\fR and \fBcv_pl.pdf\fR).
+.TP
+.BR \-d ", " \-\-diff
+Generate \fBharvest_diff.log\fR comparing baseline and current runs.
+.TP
+.BR \-i ", " \-\-interactive
+Enable interactive refinement loop.
+.TP
+.BR \-e ", " \-\-encrypt\-mode " \fI<aes|gpg>\fR"
+Select archive encryption backend (\fBaes\fR or \fBgpg\fR).
+.TP
+.BR \-\-gui
+Open customization GUI in browser.
+.TP
+.BR \-c ", " \-\-config
+Reconfigure GitHub handle, provider, and encrypted vault sync.
+
+.SH FILES
+.I config/user_constraints.md
+Gitignored user-specific exclusions and language rules loaded dynamically.
+.SH LICENSE
+MIT License.

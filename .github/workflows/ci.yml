@@ -1,0 +1,38 @@
+name: CI Verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Shell Syntax & Python Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system tools
+        run: sudo apt-get update && sudo apt-get install -y poppler-utils chromium-browser || sudo apt-get install -y poppler-utils chromium
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test runner
+        run: pip install pytest
+
+      - name: Validate shell scripts & CLI help
+        run: |
+          bash -n harvest_cv.sh install.sh
+          chmod +x harvest_cv.sh install.sh scripts/*.py
+          ./harvest_cv.sh --help >/dev/null
+
+      - name: Run pytest suite
+        run: pytest -v tests/

@@ -1,0 +1,19 @@
+pkgbase = vltimate-cv
+	pkgdesc = Open-core proof-of-work technical intelligence harvester and strict ATS resume engine
+	pkgver = 4.0.0
+	pkgrel = 1
+	url = https://github.com/Vikyek/vltimate-cv
+	arch = any
+	license = MIT
+	depends = bash
+	depends = python
+	depends = git
+	depends = curl
+	depends = openssl
+	optdepends = chromium: headless ATS/ModernCV PDF export
+	optdepends = gnupg: GPG vault archive encryption
+	optdepends = github-cli: automatic GitHub handle detection
+	source = vltimate-cv-4.0.0.tar.gz::https://github.com/Vikyek/vltimate-cv/archive/refs/tags/v4.0.0.tar.gz
+	sha256sums = SKIP
+
+pkgname = vltimate-cv
